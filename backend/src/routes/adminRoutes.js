@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const { login } = require('../controllers/adminController');
 const { createProduct, updateProduct, deleteProduct } = require('../controllers/productController');
-const { getAllOrders, updateOrderStatus } = require('../controllers/orderController');
+const { getAllOrders, updateOrderStatus, deleteOrder } = require('../controllers/orderController');
 
 // Auth
 router.post('/login', login);
@@ -26,5 +26,6 @@ router.post('/upload', upload.array('images', 5), (req, res) => {
 // Orders
 router.get('/orders', getAllOrders);
 router.patch('/orders/:id', updateOrderStatus);
+router.delete('/orders/:id', deleteOrder);
 
 module.exports = router;

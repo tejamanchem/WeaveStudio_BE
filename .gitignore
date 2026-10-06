@@ -2,3 +2,7 @@ node_modules/
 .next/
 uploads/*
 !uploads/.gitkeep
+.env
+.env.*
+!.env.example
+*.backup

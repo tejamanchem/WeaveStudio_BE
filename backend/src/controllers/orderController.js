@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Product = require('../models/Product');
 const { createOrder } = require('../services/orderService');
 
 // POST /orders
@@ -90,6 +91,42 @@ exports.updateOrderStatus = async (req, res, next) => {
     }
 
     res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// DELETE /admin/orders/:id
+exports.deleteOrder = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Restore product stock for each ordered item
+    if (order.items && order.items.length > 0) {
+      await Promise.all(
+        order.items.map(async (item) => {
+          if (item.productId && item.quantity) {
+            await Product.findByIdAndUpdate(item.productId, {
+              $inc: { stock: item.quantity },
+            });
+          }
+        })
+      );
+    }
+
+    // Delete the order record
+    await Order.findByIdAndDelete(id);
+
+    res.json({
+      message: 'Order and associated records deleted successfully',
+      orderId: order.orderId,
+      deletedId: id,
+    });
   } catch (error) {
     next(error);
   }
